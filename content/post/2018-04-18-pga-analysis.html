@@ -1,0 +1,372 @@
+---
+draft: yes
+title: "PGA Analysis"
+author: "Greg Harvey"
+date: '2018-04-21'
+output:
+  html_document:
+    df_print: paged
+coverImage: "http://res.cloudinary.com/gharv/image/upload/v1504197764/Nicklaus_13th-2_psqkvu.jpg"
+slug: pga-analysis
+tags: ["R", "golf", "scraping", "shot data", "PGA"]
+thumbnailImage: "http://res.cloudinary.com/gharv/image/upload/v1524415034/phil_start_j9uyo4.jpg"
+thumbnailImagePosition: right
+categories: ["Golf"]
+---
+
+
+
+<div id="do-pga-golfers-preform-better-in-different-regions-or-rounds" class="section level1">
+<h1>Do PGA Golfers Preform Better in Different Regions or Rounds?</h1>
+<p>Many times I hear either on TV or through friends that X golfer preforms better in round 4 or that X golfer seems to play better in the south. Intuitively I can see the case for both, some golfers may preform better on a given round due to their mindset. It is even easier to understand that players may play better in a given region, due to being in an area they are comfortable with or grew up and where they are more familiar with the typical layouts of courses or the grass of the course so lets look into it.</p>
+<p>In order to preform this analysis we are going to split regions of the USA into:</p>
+<ul>
+<li>Northeast</li>
+<li>Midwest</li>
+<li>South</li>
+<li>West</li>
+</ul>
+<p>These regions we chosen based off how the US Census Bureau splits regions. Below we will import our data from the previous post and a few libraries we will use throughout.</p>
+<pre class="r"><code>library(ggplot2)
+library(dplyr)
+library(knitr)
+df &lt;- read.csv(&quot;https://github.com/Gharv/PGA/blob/master/sample_pga_hole_scores07-17.csv?raw=true&quot;)</code></pre>
+<p>This contains a sample of the PGA hole scores data from 2007 to 2017. Specifically it contains only the players:</p>
+<ul>
+<li>Tiger Woods</li>
+<li>Jordan Spieth</li>
+<li>Dustin Johnson</li>
+<li>Rory McIlroy</li>
+<li>Phil Mickelson</li>
+<li>and a few others.</li>
+</ul>
+<div id="balanced-factorial-design-with-two-treatment-factors" class="section level2">
+<h2>Balanced Factorial Design with Two Treatment Factors</h2>
+<p><img src="http://res.cloudinary.com/gharv/image/upload/v1524414853/design_ex_rd8pef.png" /></p>
+<p>For this example I will just look into one single player for brevity, which I will choose Phil Mickelson and determine if the region he plays or the round he plays or their interaction has an effect on his score of a hole.</p>
+<div style="width:1024px; height:576px">
+<p><img src="http://res.cloudinary.com/gharv/image/upload/v1524415034/phil_start_j9uyo4.jpg" /></p>
+</div>
+<pre class="r"><code>pm &lt;- filter(df, PlayerName == &quot;Phil Mickelson&quot; &amp; Region != &quot;hawaii&quot; &amp; Round != 5)
+pm[,c(&quot;Region&quot;, &quot;Round&quot;)] &lt;- lapply(pm[,c(&quot;Region&quot;, &quot;Round&quot;)], factor)
+pm &lt;- mutate(pm, ScoreAdj = Strokes - Par.x)
+
+kable(table(pm$Region, pm$Round))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>midwest</td>
+<td align="right">576</td>
+<td align="right">558</td>
+<td align="right">558</td>
+<td align="right">558</td>
+</tr>
+<tr class="even">
+<td>northeast</td>
+<td align="right">504</td>
+<td align="right">504</td>
+<td align="right">432</td>
+<td align="right">378</td>
+</tr>
+<tr class="odd">
+<td>south</td>
+<td align="right">1728</td>
+<td align="right">1727</td>
+<td align="right">1431</td>
+<td align="right">1419</td>
+</tr>
+<tr class="even">
+<td>west</td>
+<td align="right">972</td>
+<td align="right">953</td>
+<td align="right">791</td>
+<td align="right">756</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>min_sample &lt;- min(table(pm$Region, pm$Round))
+print(min_sample)</code></pre>
+<pre><code>## [1] 378</code></pre>
+<pre class="r"><code>pm &lt;- pm %&gt;% group_by(Region, Round) %&gt;% sample_n(min_sample)
+kable(table(pm$Region, pm$Round))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>midwest</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+</tr>
+<tr class="even">
+<td>northeast</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+</tr>
+<tr class="odd">
+<td>south</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+</tr>
+<tr class="even">
+<td>west</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+<td align="right">378</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fit1 &lt;- lm(ScoreAdj ~ Region * Round, data = pm)
+fit2 &lt;- lm(ScoreAdj ~ Region, data = pm)
+aov2 &lt;- aov(ScoreAdj ~ Region, data = pm)</code></pre>
+<p>Next thing we need to do is check our assumptions before preceding with our analysis.</p>
+</div>
+<div id="check-assumptions" class="section level2">
+<h2>Check Assumptions</h2>
+<p>There are 3 assumptions we need to check:</p>
+<ol style="list-style-type: decimal">
+<li>Independence of Errors</li>
+<li>Normality of Errors</li>
+<li>Equal Error Variance Across Treatments</li>
+</ol>
+<p>The first assumption we assume that players are trying equally on all holes which gives us independence among each hole. In reality there are many things that can effect a player, golf is one of those sports that can be very mental which can effect this assumption but here we are going to assume each player gives equal effort for each hole.</p>
+<p>The second assumption doesn’t have to feel so hand wavy, we can actually plot the data to check our assumption of normality. A common approach to achieve this is to look that a Normal Q-Q Plot given below:</p>
+<pre class="r"><code>hist(pm$ScoreAdj)</code></pre>
+<p><img src="http://res.cloudinary.com/gharv/image/upload/v1524416725/hist_kvo9yp.jpg" />
+For the above histogram the data looks fairly normal.</p>
+<p>The third assumption of equal variance can be checked with the levene’s test which we run below:</p>
+<pre class="r"><code>library(car)</code></pre>
+<pre><code>## Warning: package &#39;car&#39; was built under R version 3.5.1</code></pre>
+<pre class="r"><code>leveneTest(fit2)</code></pre>
+<pre><code>## Levene&#39;s Test for Homogeneity of Variance (center = median)
+##         Df F value Pr(&gt;F)
+## group    3  0.0719  0.975
+##       6044</code></pre>
+<p>From the output above we can see that the p-value is not less than the significance level of 0.05. This means that there is no evidence to suggest that the variance across groups is statistically significantly different. Therefore, we can assume the homogeneity of variances in the different treatment groups.</p>
+</div>
+<div id="continue-with-our-model" class="section level2">
+<h2>Continue with Our Model</h2>
+<p>We can run an ANOVA to get our covariates:</p>
+<pre class="r"><code>options(knitr.kable.NA = &quot;&quot;)
+kable(anova(fit1), digits = 4)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Df</th>
+<th align="right">Sum Sq</th>
+<th align="right">Mean Sq</th>
+<th align="right">F value</th>
+<th align="right">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Region</td>
+<td align="right">3</td>
+<td align="right">5.7955</td>
+<td align="right">1.9318</td>
+<td align="right">4.0419</td>
+<td align="right">0.0070</td>
+</tr>
+<tr class="even">
+<td>Round</td>
+<td align="right">3</td>
+<td align="right">0.8484</td>
+<td align="right">0.2828</td>
+<td align="right">0.5917</td>
+<td align="right">0.6204</td>
+</tr>
+<tr class="odd">
+<td>Region:Round</td>
+<td align="right">9</td>
+<td align="right">2.5412</td>
+<td align="right">0.2824</td>
+<td align="right">0.5908</td>
+<td align="right">0.8058</td>
+</tr>
+<tr class="even">
+<td>Residuals</td>
+<td align="right">6032</td>
+<td align="right">2882.9921</td>
+<td align="right">0.4779</td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p>From the above output we can we that the interaction effect is not significant, it also looks like the Round effect is also not very significant. So lets continue on with a one way ANOVA looking at just the Region.</p>
+<pre class="r"><code>kable(anova(fit2), digits = 4)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Df</th>
+<th align="right">Sum Sq</th>
+<th align="right">Mean Sq</th>
+<th align="right">F value</th>
+<th align="right">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Region</td>
+<td align="right">3</td>
+<td align="right">5.7955</td>
+<td align="right">1.9318</td>
+<td align="right">4.0452</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td>Residuals</td>
+<td align="right">6044</td>
+<td align="right">2886.3816</td>
+<td align="right">0.4776</td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p>We can see that it looks like Region has an effect, so lets look at the estimates to maybe determine if specific regions differ from each other.</p>
+<pre class="r"><code>print(summary(fit2))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = ScoreAdj ~ Region, data = pm)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2.0013 -0.0013  0.0311  0.0853  4.0853 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      0.001323   0.017772   0.074  0.94067    
+## Regionnortheast -0.032407   0.025134  -1.289  0.19731    
+## Regionsouth     -0.039021   0.025134  -1.553  0.12058    
+## Regionwest      -0.086640   0.025134  -3.447  0.00057 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.6911 on 6044 degrees of freedom
+## Multiple R-squared:  0.002004,   Adjusted R-squared:  0.001508 
+## F-statistic: 4.045 on 3 and 6044 DF,  p-value: 0.006969</code></pre>
+<pre class="r"><code>kable(TukeyHSD(aov2, which = &quot;Region&quot;)$Region)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">diff</th>
+<th align="right">lwr</th>
+<th align="right">upr</th>
+<th align="right">p adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>northeast-midwest</td>
+<td align="right">-0.0324074</td>
+<td align="right">-0.0969942</td>
+<td align="right">0.0321794</td>
+<td align="right">0.5697134</td>
+</tr>
+<tr class="even">
+<td>south-midwest</td>
+<td align="right">-0.0390212</td>
+<td align="right">-0.1036080</td>
+<td align="right">0.0255657</td>
+<td align="right">0.4061440</td>
+</tr>
+<tr class="odd">
+<td>west-midwest</td>
+<td align="right">-0.0866402</td>
+<td align="right">-0.1512271</td>
+<td align="right">-0.0220534</td>
+<td align="right">0.0031979</td>
+</tr>
+<tr class="even">
+<td>south-northeast</td>
+<td align="right">-0.0066138</td>
+<td align="right">-0.0712006</td>
+<td align="right">0.0579731</td>
+<td align="right">0.9936219</td>
+</tr>
+<tr class="odd">
+<td>west-northeast</td>
+<td align="right">-0.0542328</td>
+<td align="right">-0.1188196</td>
+<td align="right">0.0103540</td>
+<td align="right">0.1353199</td>
+</tr>
+<tr class="even">
+<td>west-south</td>
+<td align="right">-0.0476190</td>
+<td align="right">-0.1122059</td>
+<td align="right">0.0169678</td>
+<td align="right">0.2303843</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>kable(pairwise.t.test(pm$ScoreAdj, pm$Region, p.adjust.method = &quot;BH&quot;)$p.value)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">midwest</th>
+<th align="right">northeast</th>
+<th align="right">south</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>northeast</td>
+<td align="right">0.2367665</td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr class="even">
+<td>south</td>
+<td align="right">0.1808734</td>
+<td align="right">0.7924481</td>
+<td align="right"></td>
+</tr>
+<tr class="odd">
+<td>west</td>
+<td align="right">0.0034218</td>
+<td align="right">0.0929513</td>
+<td align="right">0.1163753</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="conclusions" class="section level1">
+<h1>Conclusions</h1>
+<p>We can see through the comparisons test that Phil Mickelson is better in the west region. This makes intuitive sense because he grew up and lives in San Diego, CA and played collegiate golf at Arizona State.</p>
+<p><img src="http://res.cloudinary.com/gharv/image/upload/v1524381025/phil_mountain_l6awej.jpg" /></p>
+<div id="future" class="section level2">
+<h2>Future</h2>
+<p>There are a few issues we have not addressed that we can run more tests and arrange our data better. One issue that is possible yet unlikely and is probably washed out over big samples is the fact that there could simply be just easier courses on the west coast causing lower scores. A good way to fix this is to take the golfers score for a given hole and instead of subtracting it from the par value we subtract it from the mean of all scores recorded on that hole for that day. That also has its issues however, because now we are assuming that each day has equal talent played on each hole. Adjusting for the strength of the field would be a good way to account for this and would take considerable work.</p>
+</div>
+</div>

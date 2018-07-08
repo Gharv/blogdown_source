@@ -1,0 +1,53 @@
+---
+draft: yes
+title: Getting Pi with Monte Carlo and Law of Large Numbers/Law of Averages
+author: Greg Harvey
+date: '2018-07-06'
+slug: getting-pi-with-monte-carlo-and-law-of-large-numbers-law-of-averages
+categories:
+  - Theory
+tags:
+  - R
+  - Monte Carlo
+  - Law of Large Numbers
+description: See how a typical person can mistake the Law of Large Numbers and apply its result to commiting the Gambler's fallacy. Monte Carlo is a process in which we can test these theories with examples of simple coin flips and even being able to solve for the value of pi.
+---
+
+
+
+<div id="making-bets" class="section level1">
+<h1>Making Bets</h1>
+<p>Being around sports and specifically sports betting I often see what many people call the <a href="https://en.wikipedia.org/wiki/Gambler&#39;s_fallacy">Gambler’s fallacy</a>. A common example of this is given by the following thought experiment:</p>
+<p>Say somone flips a coin 99 times all landing on heads, but says the coin is fair. Then asks what are the odds of getting tails on my next toss?</p>
+<p>Commiting the Gambler’s fallacy would be to say that it is more likely to land tails because it is <em>due.</em> Someone who is purely hypothetical would say that it is 50:50 concluding the odds are not affected by the previous outcomes. Another interesting spin on this is the Ludic fallacy meaning “the misuse of games to model real-life situations” coined by my favorite author <a href="https://en.wikipedia.org/wiki/Nassim_Nicholas_Taleb">Nassim Taleb</a>.</p>
+<p>In his books he has this example in which two characters give different answers. Fat Tony is the foil to Dr. John. Dr. John is nerdy, meticulous, careful and academic; Fat Tony is confident, loud, careless and shrewd. Both of them make errors, but of different types. Fat Tony gives the answer that the initial assumption of 50:50 is most likely incorrect and “The coin gotta be loaded. It can’t be a fair game.” While Dr. John gives the hypotheticaly answer.</p>
+<p>So what are the chances of getting 100 heads in a row?</p>
+<pre class="r"><code># Assuming a fair coin, each flip has 0.5 chance of landing heads
+0.5 ^ 100</code></pre>
+<pre><code>## [1] 7.888609e-31</code></pre>
+<p>Does this mean heads or tails is more likely? Well no if the assumption holds.</p>
+<pre class="r"><code># Probability of getting 99 heads and 1 tail
+0.5 ^ 99 * 0.5</code></pre>
+<pre><code>## [1] 7.888609e-31</code></pre>
+<pre class="r"><code># Probability of getting 99 heads and another heads
+0.5 ^ 99 * 0.5</code></pre>
+<pre><code>## [1] 7.888609e-31</code></pre>
+<p>As we can see all of these outcomes have equal chance of occuring. Commiting the Gambler’s fallacy would say conclude that tails has a large chance then <span class="math inline">\(0.5\)</span>. If they assumed tails was <em>due</em> meaning tails chance was say for example <span class="math inline">\(0.75\)</span> we would get a deviation from the true probability shown above.</p>
+<pre class="r"><code>0.5 ^ 99 * 0.75</code></pre>
+<pre><code>## [1] 1.183291e-30</code></pre>
+</div>
+<div id="what-should-we-know" class="section level1">
+<h1>What should we know</h1>
+<p>So we can see the mistakes made but what should we take away from this? Understanding the common pitfalls of probability is very important but we can also use this Law of Large Numbers to solve other problems. For example <span class="math inline">\(\pi\)</span> is not able to be solved to an exact number but most of us know it is about <span class="math inline">\(3.14\)</span>. We can use Monte Carlo to simulate this problem to get an answer close to <span class="math inline">\(\pi\)</span>.</p>
+<p>Draw a square of sides 2, centered at the origin and inside the square draw a circle of radius 1.</p>
+<p><img src="http://res.cloudinary.com/gharv/image/upload/v1530919852/unit-circle_u2k8lb.png" /></p>
+<p>Now we can generate numbers from a uniform distribution from <span class="math inline">\((-1,1)\)</span> for two variables say <span class="math inline">\(X, Y\)</span>. Let <span class="math inline">\(B = 1\)</span> if the poin is in the circle and <span class="math inline">\(B = 0\)</span> if the point is not in the circle. Repeat <span class="math inline">\(n\)</span> times, and form <span class="math inline">\(\overline{B}\)</span> to be the fraction of times the point falls inside the circle.</p>
+<pre class="r"><code>set.seed(123)
+n &lt;- 1000000
+x &lt;- runif(n=n, min=-1, max=1)
+y &lt;- runif(n=n, min=-1, max=1)
+z &lt;- x^2 + y^2
+(estimate_pi &lt;- 4 * sum(z&lt;1) / n)</code></pre>
+<pre><code>## [1] 3.141408</code></pre>
+<p>As we can see this comes pretty close to the value of <span class="math inline">\(\pi\)</span> we currently have <a href="https://en.wikipedia.org/wiki/Pi"><span class="math inline">\(3.14159\)</span></a>.</p>
+</div>

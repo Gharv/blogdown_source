@@ -163,7 +163,7 @@ For the above histogram the data looks fairly normal.</p>
 <pre class="r"><code>leveneTest(fit2)</code></pre>
 <pre><code>## Levene&#39;s Test for Homogeneity of Variance (center = median)
 ##         Df F value Pr(&gt;F)
-## group    3  0.0719  0.975
+## group    3   0.875 0.4532
 ##       6044</code></pre>
 <p>From the output above we can see that the p-value is not less than the significance level of 0.05. This means that there is no evidence to suggest that the variance across groups is statistically significantly different. Therefore, we can assume the homogeneity of variances in the different treatment groups.</p>
 </div>
@@ -187,32 +187,32 @@ kable(anova(fit1), digits = 4)</code></pre>
 <tr class="odd">
 <td>Region</td>
 <td align="right">3</td>
-<td align="right">5.7955</td>
-<td align="right">1.9318</td>
-<td align="right">4.0419</td>
-<td align="right">0.0070</td>
+<td align="right">6.1832</td>
+<td align="right">2.0611</td>
+<td align="right">4.1889</td>
+<td align="right">0.0057</td>
 </tr>
 <tr class="even">
 <td>Round</td>
 <td align="right">3</td>
-<td align="right">0.8484</td>
-<td align="right">0.2828</td>
-<td align="right">0.5917</td>
-<td align="right">0.6204</td>
+<td align="right">0.4583</td>
+<td align="right">0.1528</td>
+<td align="right">0.3105</td>
+<td align="right">0.8178</td>
 </tr>
 <tr class="odd">
 <td>Region:Round</td>
 <td align="right">9</td>
-<td align="right">2.5412</td>
-<td align="right">0.2824</td>
-<td align="right">0.5908</td>
-<td align="right">0.8058</td>
+<td align="right">2.3843</td>
+<td align="right">0.2649</td>
+<td align="right">0.5384</td>
+<td align="right">0.8475</td>
 </tr>
 <tr class="even">
 <td>Residuals</td>
 <td align="right">6032</td>
-<td align="right">2882.9921</td>
-<td align="right">0.4779</td>
+<td align="right">2967.9577</td>
+<td align="right">0.4920</td>
 <td align="right"></td>
 <td align="right"></td>
 </tr>
@@ -235,16 +235,16 @@ kable(anova(fit1), digits = 4)</code></pre>
 <tr class="odd">
 <td>Region</td>
 <td align="right">3</td>
-<td align="right">5.7955</td>
-<td align="right">1.9318</td>
-<td align="right">4.0452</td>
-<td align="right">0.007</td>
+<td align="right">6.1832</td>
+<td align="right">2.0611</td>
+<td align="right">4.1932</td>
+<td align="right">0.0057</td>
 </tr>
 <tr class="even">
 <td>Residuals</td>
 <td align="right">6044</td>
-<td align="right">2886.3816</td>
-<td align="right">0.4776</td>
+<td align="right">2970.8003</td>
+<td align="right">0.4915</td>
 <td align="right"></td>
 <td align="right"></td>
 </tr>
@@ -258,20 +258,20 @@ kable(anova(fit1), digits = 4)</code></pre>
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -2.0013 -0.0013  0.0311  0.0853  4.0853 
+## -2.0040 -0.0040  0.0218  0.0840  6.0840 
 ## 
 ## Coefficients:
 ##                  Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)      0.001323   0.017772   0.074  0.94067    
-## Regionnortheast -0.032407   0.025134  -1.289  0.19731    
-## Regionsouth     -0.039021   0.025134  -1.553  0.12058    
-## Regionwest      -0.086640   0.025134  -3.447  0.00057 ***
+## (Intercept)      0.003968   0.018030   0.220 0.825808    
+## Regionnortheast -0.038360   0.025498  -1.504 0.132531    
+## Regionsouth     -0.025794   0.025498  -1.012 0.311781    
+## Regionwest      -0.087963   0.025498  -3.450 0.000565 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.6911 on 6044 degrees of freedom
-## Multiple R-squared:  0.002004,   Adjusted R-squared:  0.001508 
-## F-statistic: 4.045 on 3 and 6044 DF,  p-value: 0.006969</code></pre>
+## Residual standard error: 0.7011 on 6044 degrees of freedom
+## Multiple R-squared:  0.002077,   Adjusted R-squared:  0.001582 
+## F-statistic: 4.193 on 3 and 6044 DF,  p-value: 0.005672</code></pre>
 <pre class="r"><code>kable(TukeyHSD(aov2, which = &quot;Region&quot;)$Region)</code></pre>
 <table>
 <thead>
@@ -286,45 +286,45 @@ kable(anova(fit1), digits = 4)</code></pre>
 <tbody>
 <tr class="odd">
 <td>northeast-midwest</td>
-<td align="right">-0.0324074</td>
-<td align="right">-0.0969942</td>
-<td align="right">0.0321794</td>
-<td align="right">0.5697134</td>
+<td align="right">-0.0383598</td>
+<td align="right">-0.1038843</td>
+<td align="right">0.0271647</td>
+<td align="right">0.4348582</td>
 </tr>
 <tr class="even">
 <td>south-midwest</td>
-<td align="right">-0.0390212</td>
-<td align="right">-0.1036080</td>
-<td align="right">0.0255657</td>
-<td align="right">0.4061440</td>
+<td align="right">-0.0257937</td>
+<td align="right">-0.0913182</td>
+<td align="right">0.0397309</td>
+<td align="right">0.7426621</td>
 </tr>
 <tr class="odd">
 <td>west-midwest</td>
-<td align="right">-0.0866402</td>
-<td align="right">-0.1512271</td>
-<td align="right">-0.0220534</td>
-<td align="right">0.0031979</td>
+<td align="right">-0.0879630</td>
+<td align="right">-0.1534875</td>
+<td align="right">-0.0224384</td>
+<td align="right">0.0031687</td>
 </tr>
 <tr class="even">
 <td>south-northeast</td>
-<td align="right">-0.0066138</td>
-<td align="right">-0.0712006</td>
-<td align="right">0.0579731</td>
-<td align="right">0.9936219</td>
+<td align="right">0.0125661</td>
+<td align="right">-0.0529584</td>
+<td align="right">0.0780907</td>
+<td align="right">0.9607140</td>
 </tr>
 <tr class="odd">
 <td>west-northeast</td>
-<td align="right">-0.0542328</td>
-<td align="right">-0.1188196</td>
-<td align="right">0.0103540</td>
-<td align="right">0.1353199</td>
+<td align="right">-0.0496032</td>
+<td align="right">-0.1151277</td>
+<td align="right">0.0159214</td>
+<td align="right">0.2092751</td>
 </tr>
 <tr class="even">
 <td>west-south</td>
-<td align="right">-0.0476190</td>
-<td align="right">-0.1122059</td>
-<td align="right">0.0169678</td>
-<td align="right">0.2303843</td>
+<td align="right">-0.0621693</td>
+<td align="right">-0.1276938</td>
+<td align="right">0.0033552</td>
+<td align="right">0.0701911</td>
 </tr>
 </tbody>
 </table>
@@ -341,21 +341,21 @@ kable(anova(fit1), digits = 4)</code></pre>
 <tbody>
 <tr class="odd">
 <td>northeast</td>
-<td align="right">0.2367665</td>
+<td align="right">0.1987970</td>
 <td align="right"></td>
 <td align="right"></td>
 </tr>
 <tr class="even">
 <td>south</td>
-<td align="right">0.1808734</td>
-<td align="right">0.7924481</td>
+<td align="right">0.3741367</td>
+<td align="right">0.6221578</td>
 <td align="right"></td>
 </tr>
 <tr class="odd">
 <td>west</td>
-<td align="right">0.0034218</td>
-<td align="right">0.0929513</td>
-<td align="right">0.1163753</td>
+<td align="right">0.0033898</td>
+<td align="right">0.1035604</td>
+<td align="right">0.0443724</td>
 </tr>
 </tbody>
 </table>
